@@ -14,10 +14,10 @@
 		// Create the defaults once
 		var pluginName = "goldpan",
 				defaults = {
-				threshold: 3,
-        fadeIn: null,
-        fadeOut: null,
-        fadeSpeed: 200
+  				threshold: 3,
+          fadeIn: null,
+          fadeOut: null,
+          fadeSpeed: 200
 		};
 
 		// The actual plugin constructor
@@ -106,7 +106,15 @@
 
         highlight: function($el, regex, query) {
           // highlight the found text
-          $el.html($el.html().replace(regex, "<mark>"+ $el.text().match(regex) +"</mark>"));
+          // fuckin' magic, http://stackoverflow.com/questions/9167855/highlight-text-inside-html-with-jquery
+          var pattern = new RegExp("("+query+")", "ig");
+          var src = $el.html();
+
+          query = query.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
+          src = src.replace(pattern, "<mark>$1</mark>");
+          src = src.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
+
+          $el.html(src);
         }
 		};
 
