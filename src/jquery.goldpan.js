@@ -2,50 +2,52 @@
 // scripts and/or other plugins which may not be closed properly.
 ;(function ( $, window, document, undefined ) {
 
-		// undefined is used here as the undefined global variable in ECMAScript 3 is
-		// mutable (ie. it can be changed by someone else). undefined isn't really being
-		// passed in so we can ensure the value of it is truly undefined. In ES5, undefined
-		// can no longer be modified.
+    // undefined is used here as the undefined global variable in ECMAScript 3 is
+    // mutable (ie. it can be changed by someone else). undefined isn't really being
+    // passed in so we can ensure the value of it is truly undefined. In ES5, undefined
+    // can no longer be modified.
 
-		// window and document are passed through as local variable rather than global
-		// as this (slightly) quickens the resolution process and can be more efficiently
-		// minified (especially when both are regularly referenced in your plugin).
+    // window and document are passed through as local variable rather than global
+    // as this (slightly) quickens the resolution process and can be more efficiently
+    // minified (especially when both are regularly referenced in your plugin).
 
-		// Create the defaults once
-		var pluginName = "goldpan",
-				defaults = {
-  				threshold: 3,
+    // Create the defaults once
+    var pluginName = "goldpan",
+        defaults = {
+          threshold: 3,
           fadeIn: null,
           fadeOut: null,
           fadeSpeed: 200
-		};
+    };
 
-		// The actual plugin constructor
-		function Plugin ( element, options ) {
-				this.element = element;
-        this.$el = $(element);
+    // The actual plugin constructor
+    function Plugin ( element, options ) {
+        var self = this;
+        self.element = element;
+        self.$el = $(element);
 
-				this.settings = $.extend( {}, defaults, options );
-				this._defaults = defaults;
-				this._name = pluginName;
-        if (!this.settings.input) {
+        self.settings = $.extend( {}, defaults, options );
+        self._defaults = defaults;
+        self._name = pluginName;
+        if (!self.settings.input) {
           console.log('please provide an input!');
         } else {
-          this.init();
+          self.init();
         }
-		}
+    }
 
-		Plugin.prototype = {
-				init: function () {
-					self = this;
-          self.listen();
-				},
-				listen: function () {
-					$('body').on('keyup', self.settings.input, function() {
+    Plugin.prototype = {
+        init: function () {
+          var self = this;
+          self.listen(self);
+        },
+        listen: function (self) {
+          var self = this;
+          self.settings.input.on('keyup', function() {
 
             // Remove previous highlighting
-            if ($('mark:first').length) {
-              $('mark').each(function() {
+            if (self.$el.find('mark:first').length) {
+              self.$el.find('mark').each(function() {
                 var text = $(this).text();
                 $(this).replaceWith(text);
               });
@@ -61,8 +63,9 @@
               self.fadeIn();
             }
           });
-				},
+        },
         search: function(query) {
+          var self = this;
           var regex = new RegExp(query, 'ig');
           self.$el.find(self.settings.selector).each(function() {
             var $this = $(this);
@@ -76,6 +79,7 @@
           });
         },
         fadeOut: function($el) {
+          var self = this;
           // If user passes in a fadeOut function, use it, otherwise $.fadeOut
           if (self.settings.fadeOut) {
             $.proxy(self.settings.fadeOut($el), self);
@@ -85,6 +89,7 @@
         },
 
         fadeIn: function($el) {
+          var self = this;
           // If user passes in a fadeIn function, use it
           if ($el) {
             if (self.settings.fadeIn) {
@@ -105,27 +110,34 @@
         },
 
         highlight: function($el, regex, query) {
+          var self = this;
           // highlight the found text
-          // fuckin' magic, http://stackoverflow.com/questions/9167855/highlight-text-inside-html-with-jquery
           var pattern = new RegExp("("+query+")", "ig");
           var src = $el.html();
 
           query = query.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
           src = src.replace(pattern, "<mark>$1</mark>");
-          src = src.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
+          // src = src.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
+
+          console.log('$el');
+          console.log($el);
+          console.log('======');
+          console.log('src');
+          console.log(src);
+          // console.log($el);
 
           $el.html(src);
         }
-		};
+    };
 
-		// A really lightweight plugin wrapper around the constructor,
-		// preventing against multiple instantiations
-		$.fn[ pluginName ] = function ( options ) {
-				return this.each(function() {
-						if ( !$.data( this, "plugin_" + pluginName ) ) {
-								$.data( this, "plugin_" + pluginName, new Plugin( this, options ) );
-						}
-				});
-		};
+    // A really lightweight plugin wrapper around the constructor,
+    // preventing against multiple instantiations
+    $.fn[ pluginName ] = function ( options ) {
+      return this.each(function() {
+        if ( !$.data( this, "plugin_" + pluginName ) ) {
+          $.data( this, "plugin_" + pluginName, new Plugin( this, options ) );
+        }
+      });
+    };
 
 })( jQuery, window, document );
