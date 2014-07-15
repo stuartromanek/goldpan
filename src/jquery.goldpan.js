@@ -117,15 +117,7 @@
 
           query = query.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
           src = src.replace(pattern, "<mark>$1</mark>");
-          // src = src.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
-
-          console.log('$el');
-          console.log($el);
-          console.log('======');
-          console.log('src');
-          console.log(src);
-          // console.log($el);
-
+          src = src.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
           $el.html(src);
         }
     };
